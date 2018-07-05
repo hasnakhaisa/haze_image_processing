@@ -1,0 +1,291 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <style>
+        body {
+            zoom: 50%;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        table {
+            width: 100%;
+            margin-left: 1%;
+            margin-right: 5%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: center;
+            padding: 8px;
+        }
+
+        .img_canvas {
+            width: 640px;
+            height: 480px;
+        }
+
+        .chart_canvas {
+            width: 1200px;
+            height: 300px;
+        }
+    </style>
+</head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<body>
+
+<p id="haze">Haze</p>
+
+<table id="hist_table">
+    <tr>
+        <th>Image</th>
+        <th>Histogram</th>
+    </tr>
+    <tr>
+        <td>
+            <canvas class="img_canvas" id="color_canvas"></canvas>
+        </td>
+        <td>
+            <canvas class="chart_canvas" id="colorhistcanvas"></canvas>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <canvas class="img_canvas" id="color_canvas1"></canvas>
+        </td>
+        <td>
+            <canvas class="chart_canvas" id="colorhistcanvas1"></canvas>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <canvas class="img_canvas" id="color_canvas2"></canvas>
+        </td>
+        <td>
+            <canvas class="chart_canvas" id="colorhistcanvas2"></canvas>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <canvas class="img_canvas" id="color_canvas3"></canvas>
+        </td>
+        <td>
+            <canvas class="chart_canvas" id="colorhistcanvas3"></canvas>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <canvas class="img_canvas" id="color_canvas4"></canvas>
+        </td>
+        <td>
+            <canvas class="chart_canvas" id="colorhistcanvas4"></canvas>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <canvas class="img_canvas" id="color_canvas5"></canvas>
+        </td>
+        <td>
+            <canvas class="chart_canvas" id="colorhistcanvas5"></canvas>
+        </td>
+    </tr>
+</table>
+
+<script src="libs/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"></script>
+<script src="libs/filters.js"></script>
+<script src="libs/canny.min.js"></script>
+
+<script>
+    var pix = [];
+    var pix1 = [];
+    var pix2 = [];
+
+    function imageProcessing(imageData) {
+        pix = [];
+        pix1 = [];
+        pix2 = [];
+
+        var data = imageData.data;
+        var hitung_putih = 0;
+
+        for (var i = 0; i < data.length; i += 4) {
+            //jumlah semua pixel
+            for (var c = 1; c < 256; c++) {
+                //count red value
+                if (pix[c] == null)
+                    pix[c] = 0;
+                if (data[i] == c)
+                    pix[c]++;
+                //count green value
+                if (pix1[c] == null)
+                    pix1[c] = 0;
+                if (data[i + 1] == c)
+                    pix1[c]++;
+                //count blue value
+                if (pix2[c] == null)
+                    pix2[c] = 0;
+                if (data[i + 2] == c)
+                    pix2[c]++;
+                if (c > 180)
+                    hitung_putih += (pix[c] + pix1[c] + pix2[c]);
+            }
+        }
+        console.log(hitung_putih);
+        document.getElementById("haze").innerHTML = hitung_putih / 1000000;
+    }
+
+    function drawChart(context, pix, pix1, pix2) {
+
+        var labels = new Array(pix.length);
+        for (var a = 0; a < labels.length; a++) {
+            labels[a] = a;
+        }
+        // console.log(pix.length);\
+        var myChart = new Chart(context, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Red',
+                        data: pix,
+                        fill: false,
+                        pointRadius: 0,
+                        borderColor: 'rgb(255, 0, 0)',
+                        //backgroundColor: 'rgb(255, 0, 0)',
+                        borderWidth: 1
+                    },
+
+                    {
+                        label: 'Green',
+                        data: pix1,
+                        fill: false,
+                        borderColor: 'rgb(0, 255, 0)',
+                        pointRadius: 0,
+                        //backgroundColor: 'rgb(0, 255, 0)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Blue',
+                        data: pix2,
+                        fill: false,
+                        borderColor: 'rgb(0, 0, 255)',
+                        //backgroundColor: 'rgb(0, 0, 255)',
+                        pointRadius: 0,
+                        borderWidth: 1
+
+                    }
+                ]
+            },
+            options: {
+                responsive: false,
+
+                scales: {
+
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    }
+
+    function drawImage(imageObj) {
+        var color_canvas = document.getElementById('color_canvas');
+        var color_context = color_canvas.getContext('2d');
+
+        var color_canvas1 = document.getElementById('color_canvas1');
+        var color_context1 = color_canvas1.getContext('2d');
+
+        var color_canvas2 = document.getElementById('color_canvas2');
+        var color_context2 = color_canvas2.getContext('2d');
+
+        var color_canvas3 = document.getElementById('color_canvas3');
+        var color_context3 = color_canvas3.getContext('2d');
+
+        var color_canvas4 = document.getElementById('color_canvas4');
+        var color_context4 = color_canvas4.getContext('2d');
+
+        var color_canvas5 = document.getElementById('color_canvas5');
+        var color_context5 = color_canvas5.getContext('2d');
+
+        var x = 0;
+        var y = 0;
+
+        color_context.drawImage(imageObj, x, y, imageObj.width, imageObj.height,
+            x, y, color_canvas.width, color_canvas.height);
+
+        var im_h = imageObj.height;
+        var cc_h = color_canvas.height;
+
+        color_context1.drawImage(imageObj,
+            x, y, imageObj.width, im_h / 3,
+            x, y, color_canvas1.width, cc_h / 3);
+
+        color_context2.drawImage(imageObj,
+            x, im_h / 3, imageObj.width, im_h / 3,
+            x, cc_h / 3, color_canvas2.width, cc_h / 3);
+
+        color_context3.drawImage(imageObj,
+            x, im_h / 3 + im_h / 3, imageObj.width, im_h / 3,
+            x, cc_h / 3 + cc_h / 3, color_canvas3.width, cc_h / 3);
+
+        color_context4.drawImage(imageObj,
+            x, y, imageObj.width, im_h / 2,
+            x, y, color_canvas4.width, cc_h / 2);
+
+        color_context5.drawImage(imageObj,
+            x, im_h / 2, imageObj.width, im_h / 2,
+            x, cc_h / 2, color_canvas5.width, cc_h / 2);
+
+        //document.getElementById("myImg").style.clip = "rect(0px "+img_width+"px "+img_height/3+"px 0px)";
+
+        var imageData = color_context.getImageData(x, y, imageObj.width, imageObj.height);
+        imageProcessing(imageData);
+        var color_ctx = document.getElementById("colorhistcanvas").getContext('2d');
+        drawChart(color_ctx, pix, pix1, pix2);
+
+        var imageData1 = color_context1.getImageData(x, y, imageObj.width, imageObj.height);
+        imageProcessing(imageData1);
+        var color_ctx1 = document.getElementById("colorhistcanvas1").getContext('2d');
+        drawChart(color_ctx1, pix, pix1, pix2);
+
+        var imageData2 = color_context2.getImageData(x, y, imageObj.width, imageObj.height);
+        imageProcessing(imageData2);
+        var color_ctx2 = document.getElementById("colorhistcanvas2").getContext('2d');
+        drawChart(color_ctx2, pix, pix1, pix2);
+
+        var imageData3 = color_context3.getImageData(x, y, imageObj.width, imageObj.height);
+        imageProcessing(imageData3);
+        var color_ctx3 = document.getElementById("colorhistcanvas3").getContext('2d');
+        drawChart(color_ctx3, pix, pix1, pix2);
+
+        var imageData4 = color_context4.getImageData(x, y, imageObj.width, imageObj.height);
+        imageProcessing(imageData4);
+        var color_ctx4 = document.getElementById("colorhistcanvas4").getContext('2d');
+        drawChart(color_ctx4, pix, pix1, pix2);
+
+        var imageData5 = color_context5.getImageData(x, y, imageObj.width, imageObj.height);
+        imageProcessing(imageData5);
+        var color_ctx5 = document.getElementById("colorhistcanvas5").getContext('2d');
+        drawChart(color_ctx5, pix, pix1, pix2);
+
+    }
+
+    var imageObj = new Image();
+
+    imageObj.onload = function () {
+        drawImage(this);
+    };
+
+    imageObj.src = 'haze-level/images/2.png';
+
+</script>
+
+</body>
+</html>

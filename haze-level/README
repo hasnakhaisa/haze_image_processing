@@ -1,0 +1,38 @@
+Dataset:  image-haze-level-v1_0
+
+===========================================================================
+
+Image based haze level estimation dataset, version 1.0
+
+The image hazel level dataset contains 3024 synthetic images and their haze
+level labels. The images are based on the algorithms and dataset provided by the
+FRIDA dataset [1] The dataset shall be used to evaluate image based haze level
+estimation techniques.
+
+If you end up using the dataset, we ask you to cite the following paper:
+
+Yuncheng Li, Jifei Huang, Jiebo Luo. "Using User Generated Online Photos to
+Estimate and Monitor Air Pollution in Major Cities." International Conference on
+Internet Multimedia Computing and Service. ICIMCS 2015.
+
+If you have any question regarding the dataset, please contact:
+
+    Yuncheng Li <yli@cs.rochester.edu>
+
+===========================================================================
+Non-commercial research purposes use only.
+
+===========================================================================
+
+Full description:
+
+This dataset contains two parts,
+
+./images/*.png: the images ./labels.txt: the hazel level labels for the images
+
+The haze levels are: 10 15 20 25 30 35 40 45 50, with increasing haze level.
+
+Last edit: Feb 28, 2016
+
+===========================================================================
+[1] http://www.lcpc.fr/english/products/image-databases/article/frida-foggy-road-image-database

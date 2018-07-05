@@ -1,0 +1,231 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <style>
+
+        body {
+            zoom: 50%;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        table {
+            width: 100%;
+            margin-left: 1%;
+            margin-right: 5%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: center;
+            padding: 8px;
+        }
+
+        .slidecontainer {
+            width: 50%;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 25px;
+            background: #d3d3d3;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            background: #4CAF50;
+            cursor: pointer;
+
+    </style>
+</head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<body>
+<!--
+<div class="slidecontainer">
+    <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+    <p>Value: <span id="demo"></span></p>
+</div>
+-->
+<select class="img-path" id="path" name="path">
+    <option value="1">1 - lv 10</option>
+    <option value="2">2 - lv 50</option>
+    <option value="3">3 - lv 45</option>
+    <option value="6">6 - lv 25</option>
+    <option value="8">8 - lv 15</option>
+</select>
+
+<table id="hist_table">
+    <tr>
+        <th>Image</th>
+        <th>Histogram</th>
+    </tr>
+    <tr>
+        <td>
+            <canvas id="color_canvas" width="640" height="480"></canvas>
+        </td>
+        <td>
+            <canvas id="colorhistcanvas" width="1200" height="300"></canvas>
+        </td>
+    </tr>
+</table>
+
+<p id="jumlah putih"></p>
+
+<script src="libs/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"></script>
+<script src="libs/filters.js"></script>
+<script src="libs/canny.min.js"></script>
+
+<script>
+    var pix = [];
+    var pix1 = [];
+    var pix2 = [];
+
+
+    function drawImage(imageObj) {
+        var color_canvas = document.getElementById('color_canvas');
+        var color_context = color_canvas.getContext('2d');
+
+        var x = 1;
+        var y = 1;
+
+        color_context.drawImage(imageObj, x, y, imageObj.width, imageObj.height,
+            x, y, color_canvas.width, color_canvas.height);
+
+        var imageData = color_context.getImageData(x, y, imageObj.width, imageObj.height);
+        var data = imageData.data;
+        var hitung_putih = 0;
+
+        for (var i = 0; i < data.length; i += 4) {
+            //jumlah semua pixel
+            for (var c = 1; c < 256; c++) {
+                //count red value
+                if (pix[c] == null)
+                    pix[c] = 0;
+                if (data[i] == c)
+                    pix[c]++;
+                //count green value
+                if (pix1[c] == null)
+                    pix1[c] = 0;
+                if (data[i + 1] == c)
+                    pix1[c]++;
+                //count blue value
+                if (pix2[c] == null)
+                    pix2[c] = 0;
+                if (data[i + 2] == c)
+                    pix2[c]++;
+                if (c > 180)
+                    hitung_putih += (pix[c] + pix1[c] + pix2[c]);
+            }
+        }
+
+        document.getElementById("jumlah putih").innerHTML = hitung_putih / 1000000;
+        console.log(pix);
+        console.log(pix1);
+        console.log(pix2);
+        var color_ctx = document.getElementById("colorhistcanvas").getContext('2d');
+
+        var labels = new Array(pix.length);
+        for (var a = 0; a < labels.length; a++) {
+            labels[a] = a;
+        }
+        // console.log(pix.length);\
+        var myChart = new Chart(color_ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Red',
+                        data: pix,
+                        fill: false,
+                        pointRadius: 0,
+                        borderColor: 'rgb(255, 0, 0)',
+                        //backgroundColor: 'rgb(255, 0, 0)',
+                        borderWidth: 1
+                    },
+
+                    {
+                        label: 'Green',
+                        data: pix1,
+                        fill: false,
+                        borderColor: 'rgb(0, 255, 0)',
+                        pointRadius: 0,
+                        //backgroundColor: 'rgb(0, 255, 0)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Blue',
+                        data: pix2,
+                        fill: false,
+                        borderColor: 'rgb(0, 0, 255)',
+                        //backgroundColor: 'rgb(0, 0, 255)',
+                        pointRadius: 0,
+                        borderWidth: 1
+
+                    }
+                ]
+            },
+            options: {
+                responsive: false,
+
+                scales: {
+
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    }
+
+    var imageObj = new Image();
+
+    imageObj.onload = function () {
+        drawImage(this);
+    };
+
+    imageObj.src = 'haze-level/images/2.png';
+
+    $('select.img-path').change(function () {
+        var filename = 'haze-level/images/' + $('#path').val() + '.png';
+        imageObj.src = filename;
+
+        //$('#color_canvas').prop('src', filename);
+    });
+    /*    var slider = document.getElementById("myRange");
+        var output = document.getElementById("demo");
+
+        slider.onchange = function() {
+            var filename = 'haze-level/images/' + $('#myRange').val() + '.png';
+            imageObj.src = filename;
+            //$('#color_canvas').prop('src', filename);
+            output.innerHTML = slider.value;
+        }*/
+
+</script>
+
+</body>
+</html>

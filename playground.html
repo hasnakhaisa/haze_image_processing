@@ -1,0 +1,480 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <style>
+
+        body {
+            zoom: 50%;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        table {
+            width: 100%;
+            margin-left: 1%;
+            margin-right: 5%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: center;
+            padding: 8px;
+        }
+
+    </style>
+</head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<body>
+
+<!--<div id='fileNames'></div>-->
+<table>
+    <tr>
+        <th>Image</th>
+        <th>Histogram</th>
+    </tr>
+    <tr>
+        <td>
+            <canvas id="color_canvas" width="640" height="480"></canvas>
+        </td>
+        <td>
+            <canvas id="colorhistcanvas" width="1200" height="300"></canvas>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <canvas id="gray_canvas" width="640" height="480"></canvas>
+        </td>
+        <td>
+            <canvas id="grayhistcanvas" width="1200" height="300"></canvas>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <canvas id="sobel_canvas" width="640" height="480"></canvas>
+        </td>
+        <td>
+            <canvas id="sobelhistcanvas" width="1200" height="300"></canvas>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <canvas id="canny_canvas" width="640" height="480"></canvas>
+        </td>
+        <td>
+            <canvas id="cannyhistcanvas" width="1200" height="300"></canvas>
+        </td>
+    </tr>
+</table>
+
+<p>Darkest Point</p>
+<p id="rgb_val">RGB Value
+<p>
+<p>Mean(Grayscale)</p>
+<p id="mean_val">Mean Value
+<p>
+<p>Standard Deviation(Grayscale)</p>
+<p id="stddev_val">STDDEV Value
+<p>
+    <!--<p>White Point</p>
+<p id="white_point">White Point<p>
+<p>White Value</p>
+<p id="white_val">White Value<p>-->
+    <script src="libs/jquery.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"></script>
+
+    <script src="libs/filters.js"></script>
+    <script src="libs/canny.min.js"></script>
+
+    <script>
+
+
+        var pix = [];
+        var pix1 = [];
+        var pix2 = [];
+        var pix3 = [];
+        var pix4 = [];
+        var pix5 = [];
+        /*
+         var white_val =0;
+         var white_point;*/
+        var hist_mean;
+        var sum = 0;
+        var tempsum = 0;
+        var std_tempsum = 0;
+
+        /*
+         var folder = "haze-level/new/";
+         $.ajax({
+         url : folder,
+         success: function (data) {
+         $("#fileNames").html('<ul>');
+         $(data).find("a").attr("href", function (i, val) {
+         if( val.match(/\.(jpe?g|png|gif)$/) ) {
+         $("#fileNames").append( "<li>" + val.toString() + "</li>");
+         }
+         });
+         $("#fileNames").append('</ul>');
+         }
+         });
+         */
+
+        function CreateArray(dim1, dim2, dim3) {
+            var h, i, j;
+            var table = new Array(dim1);
+
+            for (h = 0; h < dim1; h++) {
+                table[h] = new Array(dim2);
+                for (i = 0; i < dim2; i++) {
+                    table[h][i] = new Array(dim3);
+                    for (j = 0; j < dim3; j++) {
+                        table[h][i][j] = 0;
+                    }
+                }
+            }
+            return (table);
+        }
+
+        function drawImage(imageObj) {
+            var color_canvas = document.getElementById('color_canvas');
+            var color_context = color_canvas.getContext('2d');
+            var gray_canvas = document.getElementById('gray_canvas');
+            var gray_context = gray_canvas.getContext('2d');
+            var sobel_canvas = document.getElementById('sobel_canvas');
+            var sobel_context = sobel_canvas.getContext('2d');
+            var canny_canvas = document.getElementById('canny_canvas');
+
+
+            var x = 1;
+            var y = 1;
+
+            color_context.drawImage(imageObj, x, y, imageObj.width, imageObj.height,
+                x, y, color_canvas.width, color_canvas.height);
+            gray_context.drawImage(imageObj, x, y, imageObj.width, imageObj.height,
+                x, y, color_canvas.width, gray_canvas.height);
+            sobel_context.drawImage(imageObj, x, y, imageObj.width, imageObj.height,
+                x, y, color_canvas.width, sobel_canvas.height);
+            //canny_context.drawImage(imageObj, x, y);
+
+
+            var imageData = color_context.getImageData(x, y, imageObj.width, imageObj.height);
+            var data = imageData.data;
+
+            var zero_array = CreateArray(49, 49, 1);
+
+            console.log(zero_array);
+
+            //sama dengan sum
+            //console.log(data.length/4);
+            for (var i = 0; i < data.length; i += 4) {
+                //jumlah semua pixel
+                for (var c = 1; c < 256; c++) {
+                    //count red value
+                    if (pix[c] == null)
+                        pix[c] = 0;
+                    if (data[i] == c)
+                        pix[c]++;
+                    //count green value
+                    if (pix1[c] == null)
+                        pix1[c] = 0;
+                    if (data[i + 1] == c)
+                        pix1[c]++;
+                    //count blue value
+                    if (pix2[c] == null)
+                        pix2[c] = 0;
+                    if (data[i + 2] == c)
+                        pix2[c]++;
+                }
+
+                var brightness = 0.34 * data[i] + 0.5 * data[i + 1] + 0.16 * data[i + 2];
+                // red
+                data[i] = brightness;
+                // green
+                data[i + 1] = brightness;
+                // blue
+                data[i + 2] = brightness;
+
+                //jumlah semua pixel yang ada abu2nya (kalo 0 ga diitung. itu bedanyaaa)
+                //std_tempsum += (data[i]*data[i]);
+
+                for (c = 1; c < 256; c++) {
+                    //count grayscale
+                    if (pix3[c] == null)
+                        pix3[c] = 0;
+                    if (data[i] == c)
+                        pix3[c]++;
+                    //       temp=pix3[c]*c;
+
+                    //    sum+=c;
+
+                    /*if (pix3[c]>white_val){
+                     white_val = pix3[c];
+                     white_point = c;
+                     }*/
+                }
+            }
+
+            var haze = 0;
+            do {
+                haze++;
+            } while (pix3[haze] == 0);
+
+            /*white_val_p.innerHTML = white_val;
+             white_point_p.innerHTML = white_point;
+             */
+            //      console.log(haze);
+            // overwrite original image
+            gray_context.putImageData(imageData, x, y);
+            var imageObj1 = imageObj;
+            var grayscale = Filters.filterImage(Filters.grayscale, imageObj1);
+            var vertical = Filters.convoluteFloat32(grayscale,
+                [-1, 0, 1,
+                    -2, 0, 2,
+                    -1, 0, 1]);
+
+            var horizontal = Filters.convoluteFloat32(grayscale,
+                [-1, -2, -1,
+                    0, 0, 0,
+                    1, 2, 1]);
+
+            var final_image = Filters.createImageData(vertical.width, vertical.height);
+
+            for (i = 0; i < final_image.data.length; i += 4) {
+                var grad = Math.sqrt(Math.pow(vertical.data[i], 2) + Math.pow(horizontal.data[i], 2)) >>> 0;
+                final_image.data[i] = grad;
+                final_image.data[i + 1] = grad;
+                final_image.data[i + 2] = grad;
+                final_image.data[i + 3] = 255; // opaque alpha
+                tempsum += final_image.data[i];
+                sum++;
+            }
+
+            hist_mean = tempsum / sum;
+            console.log(hist_mean + "= " + tempsum + " / " + sum);
+
+            //hitung std dev
+
+            for (i = 0; i < final_image.data.length; i += 4) {
+                std_tempsum += (hist_mean - final_image.data[i]) * (hist_mean - final_image.data[i]);
+                for (c = 1; c < 256; c++) {
+                    //count grayscale
+                    if (pix4[c] == null)
+                        pix4[c] = 0;
+                    if (final_image.data[i] == c)
+                        pix4[c]++;
+                    //       temp=pix3[c]*c;
+
+                    //    sum+=c;
+
+                    /*if (pix3[c]>white_val){
+                     white_val = pix3[c];
+                     white_point = c;
+                     }*/
+                }
+            }
+
+            window.canny = CannyJS.canny(color_canvas);
+            canny.drawOn(canny_canvas);
+
+            var canny_context = canny_canvas.getContext('2d');
+
+            var dataimg = canny_context.getImageData(x, y, imageObj.width, imageObj.height);
+            //count for canny
+            for (i = 0; i < dataimg.data.length; i += 4) {
+                //std_tempsum += (hist_mean - canny.data[i]) * (hist_mean - canny.data[i]);
+                for (c = 1; c < 256; c++) {
+                    //count grayscale
+                    if (pix5[c] == null)
+                        pix5[c] = 0;
+                    if (dataimg.data[i] == c)
+                        pix5[c]++;
+                }
+            }
+
+
+            var stddev = Math.sqrt(std_tempsum / sum);
+
+            console.log(stddev);
+
+            var rgb_val = document.getElementById("rgb_val");
+            var mean_val = document.getElementById("mean_val");
+            var stddev_val = document.getElementById("stddev_val");
+            /*var white_val_p = document.getElementById("white_val");
+             var white_point_p = document.getElementById("white_point");*/
+            rgb_val.innerHTML = haze;
+            mean_val.innerHTML = hist_mean;
+            stddev_val.innerHTML = stddev;
+
+            /*for (i=0; i<final_image.data.length; i+=4){
+             // make the vertical gradient red
+             var v = Math.abs(vertical.data[i]);
+             final_image.data[i] = v;
+             // make the horizontal gradient green
+             var h = Math.abs(horizontal.data[i]);
+             final_image.data[i+1] = h;
+             // and mix in some blue for aesthetics
+             //final_image.data[i+2] = (v+h)/4;
+             final_image.data[i+3] = 255; // opaque alpha
+             }*/
+
+            sobel_context.putImageData(final_image, 0, 0);
+
+            var color_ctx = document.getElementById("colorhistcanvas").getContext('2d');
+
+            var labels = new Array(pix.length);
+            for (var a = 0; a < labels.length; a++) {
+                labels[a] = a;
+            }
+            // console.log(pix.length);\
+            var myChart = new Chart(color_ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Red',
+                            data: pix,
+                            fill: false,
+                            pointRadius: 0,
+                            borderColor: 'rgb(255, 0, 0)',
+                            //backgroundColor: 'rgb(255, 0, 0)',
+                            borderWidth: 1
+                        },
+
+                        {
+                            label: 'Green',
+                            data: pix1,
+                            fill: false,
+                            borderColor: 'rgb(0, 255, 0)',
+                            pointRadius: 0,
+                            //backgroundColor: 'rgb(0, 255, 0)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Blue',
+                            data: pix2,
+                            fill: false,
+                            borderColor: 'rgb(0, 0, 255)',
+                            //backgroundColor: 'rgb(0, 0, 255)',
+                            pointRadius: 0,
+                            borderWidth: 1
+
+                        }
+                    ]
+                },
+                options: {
+                    responsive: false,
+
+                    scales: {
+
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+            var gray_ctx = document.getElementById("grayhistcanvas").getContext('2d');
+            var myChartGrayscale = new Chart(gray_ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Grayscale',
+                        data: pix3,
+                        borderColor: 'rgb(0, 0, 0)',
+                        fill: false,
+                        pointRadius: 0,
+                        //backgroundColor: 'rgb(255, 0, 0)',
+                        borderWidth: 1
+
+                    }
+                    ]
+                },
+                options: {
+                    responsive: false,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+
+            var sobel_ctx = document.getElementById("sobelhistcanvas").getContext('2d');
+            var myChartSobel = new Chart(sobel_ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Sobel',
+                        data: pix4,
+                        borderColor: 'rgb(0, 0, 0)',
+                        fill: false,
+                        pointRadius: 0,
+                        //backgroundColor: 'rgb(255, 0, 0)',
+                        borderWidth: 1
+
+                    }
+                    ]
+                },
+                options: {
+                    responsive: false,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+            console.log(pix4);
+            console.log(final_image.data.length);
+            console.log(canny.data.length);
+            var canny_ctx = document.getElementById("cannyhistcanvas").getContext('2d');
+            var myChartCanny = new Chart(canny_ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Canny',
+                        data: pix5,
+                        borderColor: 'rgb(0, 0, 0)',
+                        fill: false,
+                        pointRadius: 0,
+                        //backgroundColor: 'rgb(255, 0, 0)',
+                        borderWidth: 1
+
+                    }
+                    ]
+                },
+                options: {
+                    responsive: false,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+
+        var imageObj = new Image();
+        imageObj.onload = function () {
+            drawImage(this);
+        };
+        imageObj.src = 'haze-level/images/2.png';
+        //imageObj.src = 'haze-level/GScrop.png';
+        //imageObj.src = 'haze-level/new/jakarta/184, 114.jpg';
+
+
+    </script>
+</body>
+</html>   

@@ -82,10 +82,6 @@ if (isset($_GET['id'])) {
             </div>
             </div>';
         echo '<script>
-            var pix = [];
-            var pix1 = [];
-            var pix2 = [];
-            var pix3 = [];
             var quan = ' . $quan[$b] . ';
 			var imageObj = new Image();
 			var dir = \'haze-level/' . substr($name[$b], 2) . '\';
@@ -132,6 +128,10 @@ if (isset($_GET['id'])) {
 */   
             var data = imageData.data;
             for (var i = 0; i < data.length; i += 4) {
+            var pix = [];
+            var pix1 = [];
+            var pix2 = [];
+            var pix3 = [];
                 for (c = 1; c < 256; c++) {
                     //count red value
                     if (pix[c] == null)

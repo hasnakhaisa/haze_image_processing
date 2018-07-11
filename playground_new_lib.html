@@ -8,10 +8,13 @@
             padding: 0px;
         }
 
-        table {
-            width: 100%;
-            margin-left: 1%;
-            margin-right: 5%;
+        {
+            width: 100%
+        ;
+            margin-left: 1%
+        ;
+            margin-right: 5%
+        ;
         }
 
         td, th {
@@ -104,16 +107,16 @@
     var pix2 = [];
 
     function imageProcessing(imageData) {
-        var data = imageData.data;
+        pix = [];
+        pix1 = [];
+        pix2 = [];
 
+        var data = imageData.data;
         var hitung_putih = 0;
+
         for (var i = 0; i < data.length; i += 4) {
-            //console.log(data.length);
-            pix = [];
-            pix1 = [];
-            pix2 = [];
             //jumlah semua pixel
-            for (var c = 0; c < 256; c++) {
+            for (var c = 1; c < 256; c++) {
                 //count red value
                 if (pix[c] == null)
                     pix[c] = 0;
@@ -134,9 +137,6 @@
             }
         }
         console.log(hitung_putih);
-        console.log(pix);
-        console.log(pix1);
-        console.log(pix2);
         document.getElementById("haze").innerHTML = hitung_putih / 1000000;
     }
 
@@ -222,6 +222,7 @@
 
         color_context.drawImage(imageObj, x, y, imageObj.width, imageObj.height,
             x, y, color_canvas.width, color_canvas.height);
+
         var im_h = imageObj.height;
         var cc_h = color_canvas.height;
 
@@ -251,31 +252,31 @@
         imageProcessing(imageData);
         var color_ctx = document.getElementById("colorhistcanvas").getContext('2d');
         drawChart(color_ctx, pix, pix1, pix2);
-        //
-        // var imageData1 = color_context1.getImageData(x, y, imageObj.width, imageObj.height);
-        // imageProcessing(imageData1);
-        // var color_ctx1 = document.getElementById("colorhistcanvas1").getContext('2d');
-        // drawChart(color_ctx1, pix, pix1, pix2);
-        //
-        // var imageData2 = color_context2.getImageData(x, y, imageObj.width, imageObj.height);
-        // imageProcessing(imageData2);
-        // var color_ctx2 = document.getElementById("colorhistcanvas2").getContext('2d');
-        // drawChart(color_ctx2, pix, pix1, pix2);
-        //
-        // var imageData3 = color_context3.getImageData(x, y, imageObj.width, imageObj.height);
-        // imageProcessing(imageData3);
-        // var color_ctx3 = document.getElementById("colorhistcanvas3").getContext('2d');
-        // drawChart(color_ctx3, pix, pix1, pix2);
-        //
-        // var imageData4 = color_context4.getImageData(x, y, imageObj.width, imageObj.height);
-        // imageProcessing(imageData4);
-        // var color_ctx4 = document.getElementById("colorhistcanvas4").getContext('2d');
-        // drawChart(color_ctx4, pix, pix1, pix2);
-        //
-        // var imageData5 = color_context5.getImageData(x, y, imageObj.width, imageObj.height);
-        // imageProcessing(imageData5);
-        // var color_ctx5 = document.getElementById("colorhistcanvas5").getContext('2d');
-        // drawChart(color_ctx5, pix, pix1, pix2);
+
+        var imageData1 = color_context1.getImageData(x, y, imageObj.width, imageObj.height);
+        imageProcessing(imageData1);
+        var color_ctx1 = document.getElementById("colorhistcanvas1").getContext('2d');
+        drawChart(color_ctx1, pix, pix1, pix2);
+
+        var imageData2 = color_context2.getImageData(x, y, imageObj.width, imageObj.height);
+        imageProcessing(imageData2);
+        var color_ctx2 = document.getElementById("colorhistcanvas2").getContext('2d');
+        drawChart(color_ctx2, pix, pix1, pix2);
+
+        var imageData3 = color_context3.getImageData(x, y, imageObj.width, imageObj.height);
+        imageProcessing(imageData3);
+        var color_ctx3 = document.getElementById("colorhistcanvas3").getContext('2d');
+        drawChart(color_ctx3, pix, pix1, pix2);
+
+        var imageData4 = color_context4.getImageData(x, y, imageObj.width, imageObj.height);
+        imageProcessing(imageData4);
+        var color_ctx4 = document.getElementById("colorhistcanvas4").getContext('2d');
+        drawChart(color_ctx4, pix, pix1, pix2);
+
+        var imageData5 = color_context5.getImageData(x, y, imageObj.width, imageObj.height);
+        imageProcessing(imageData5);
+        var color_ctx5 = document.getElementById("colorhistcanvas5").getContext('2d');
+        drawChart(color_ctx5, pix, pix1, pix2);
 
     }
 

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"></script>
+</head>
+<body>
+<canvas id="colorhistcanvas" width="1200" height="300"></canvas>
+
+<script>
+    var pix5 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 7, 13, 21, 38, 59, 59, 87, 141, 212, 276, 402, 535, 653, 715, 827, 928, 1025, 1077, 1254, 1457, 1486, 1663, 2021, 2600, 2926, 3355, 3612, 3752, 3766, 3821, 3756, 3876, 3981, 3808, 3767, 3126
+        , 2322, 1758, 1298, 1156, 1142, 1077, 1054, 1042, 976, 1038, 904, 930, 916, 943, 924, 965, 921, 872, 1023, 980, 959, 958, 965, 1051, 1031, 1066, 1110, 1058, 919, 906, 904, 869, 830, 877, 862, 1092, 1403, 1270, 1011, 1017, 987, 954, 1065, 1184, 1203, 1212, 1125, 1313, 2336, 3895, 3889, 4802, 5369, 8262, 11632, 10023, 8633, 8533, 9305, 8867, 8783, 8640, 9470, 9766, 8483, 7376, 6137, 4957, 4802, 4170, 3958, 3753, 3740, 3613, 3260, 3152, 2966,
+        1386, 1223, 1114, 959, 851, 795, 728, 693, 665, 668, 657, 660, 647, 638, 397, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var canny_ctx = document.getElementById("colorhistcanvas").getContext('2d');
+    var labels = new Array(pix5.length);
+    for (var a = 0; a < labels.length; a++) {
+        labels[a] = a;
+    }
+    var myChartCanny = new Chart(canny_ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Canny',
+                data: pix5,
+                borderColor: 'rgb(0, 0, 0)',
+                fill: false,
+                pointRadius: 0,
+                //backgroundColor: 'rgb(255, 0, 0)',
+                borderWidth: 1
+
+            }
+            ]
+        },
+        options: {
+            responsive: false,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+</script>
+</body>
+</html>
